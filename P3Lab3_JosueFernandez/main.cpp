@@ -21,7 +21,6 @@ int main(int argc, char** argv) {
     char opcion = 'S';
     int size = 2;
     do {
-        cout << "No tengo idea de pq esto no corre bien.";
         //Pedir tamaño de la matriz
         cout << endl << "Ingrese la dimension de la matriz A: ";
         cin >> size;
@@ -32,17 +31,16 @@ int main(int argc, char** argv) {
                     "Ingrese de nuevo: ";
             cin >> size;
         }
-        cout << "No tengo idea de pq esto no corre bien.";
         //Matriz generada
-        cout << "0";
+        
         int** matriz = generarMatriz(size);
-        cout << "1";
-        int** adjMatriz = adjunta(matriz, size);
-        cout << "2";
+        int** adjMatriz = NULL;
+        adjMatriz = adjunta(matriz, size);
+        
 
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                cout << matriz[i][j] << "  ";
+                cout << matriz[i][j] << "\t ";
             }
             cout << endl;
         }
@@ -107,7 +105,7 @@ void liberarMemoria(int**& matriz, int size) {
 int** adjunta(int**& matriz, int size) {
     int** adjMatriz = new int*[size];
     for (int i = 0; i < size; i++) {
-        matriz[i] = new int[size];
+        adjMatriz[i] = new int[size];
         for (int j = 0; j < size; j++) {
             adjMatriz[i][j] = cofactor(matriz, size, i, j);
         }
@@ -120,11 +118,16 @@ int** adjunta(int**& matriz, int size) {
  */
 int determinante(int**& matriz, int size) {
 
-    if (size < 2) // Ocurrió un error
+    if (size <= 0) // Ocurrió un error
     {
-        cout << "Error con dimension de la matriz.";
+        cout << "Error con dimension de la matriz." << endl;
         return 0;
-    } else if (size == 2) // Caso base
+    } 
+    else if (size == 1) // Por si acaso
+    {
+        return matriz[0][0];
+    } 
+    else if (size == 2) // Caso base
     {
         return (matriz[0][0] * matriz[1][1]) - (matriz[0][1] * matriz[1][0]);
     }
