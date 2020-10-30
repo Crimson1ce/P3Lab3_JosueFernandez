@@ -13,6 +13,7 @@ int** adjunta(int**&, int);
 int determinante(int**&, int);
 int** submatriz(int**&, int, int, int);
 int cofactor(int**&, int, int, int);
+void transponer(int**&, int);
 
 int main(int argc, char** argv) {
 
@@ -20,18 +21,24 @@ int main(int argc, char** argv) {
     char opcion = 'S';
     int size = 2;
     do {
+        cout << "No tengo idea de pq esto no corre bien.";
         //Pedir tamaño de la matriz
         cout << endl << "Ingrese la dimension de la matriz A: ";
         cin >> size;
 
         //Validar el tamaño ingresado
         while (size < 2) {
-            cout << "La dimension de la matriz debe ser por lo menos 2. Ingrese de nuevo: ";
+            cout << "La dimension de la matriz debe ser por lo menos 2. "
+                    "Ingrese de nuevo: ";
             cin >> size;
         }
-
+        cout << "No tengo idea de pq esto no corre bien.";
         //Matriz generada
+        cout << "0";
         int** matriz = generarMatriz(size);
+        cout << "1";
+        int** adjMatriz = adjunta(matriz, size);
+        cout << "2";
 
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
@@ -39,19 +46,26 @@ int main(int argc, char** argv) {
             }
             cout << endl;
         }
+        cout << endl << "El determinante de la matriz es: " 
+                << determinante(matriz, size) << endl;
+        cout << endl << "La adjunta de la matriz es: " << endl;
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                cout << adjMatriz[i][j] << "  ";
+            }
+            cout << endl;
+        }
 
-
-        cout << endl << "El determinante de la matriz es: " << determinante(matriz, size) << endl;
-
-        //Liberar la memoria de la matriz
+        //Liberar la memoria de las matrices
         liberarMemoria(matriz, size);
+        liberarMemoria(adjMatriz, size);
 
         //Preguntar por repetición
         do {
             cout << endl << "Desea calcular la inversa de otra matriz? (S=Si / N=No): ";
             cin >> opcion;
-        } while (opcion!='S' && opcion!='s' && opcion!='N' && opcion!='n');
-        
+        } while (opcion != 'S' && opcion != 's' && opcion != 'N' && opcion != 'n');
+
     } while (opcion == 'S' || opcion == 's');
 
     cout << endl << "Nos vemos!";
@@ -88,8 +102,18 @@ void liberarMemoria(int**& matriz, int size) {
     }
 }
 
+/* Calcula la adjunta de una matriz dados la matriz y su tamaño.
+ */
 int** adjunta(int**& matriz, int size) {
-    return NULL;
+    int** adjMatriz = new int*[size];
+    for (int i = 0; i < size; i++) {
+        matriz[i] = new int[size];
+        for (int j = 0; j < size; j++) {
+            adjMatriz[i][j] = cofactor(matriz, size, i, j);
+        }
+    }
+    transponer(adjMatriz, size);
+    return adjMatriz;
 }
 
 /*Retorna el determinante de una matriz dada la matriz y su dimensión.
@@ -104,24 +128,20 @@ int determinante(int**& matriz, int size) {
     {
         return (matriz[0][0] * matriz[1][1]) - (matriz[0][1] * matriz[1][0]);
     }
-    //    cout << endl << numero++ << endl;
-    //Caso recursivo
-    // a[i][1]A[i][1] + a[i][2]A[i][2] + ... a[i][n]A[i][n]
+
+    //Caso recursivo 
+    //a[i][1]A[i][1] + a[i][2]A[i][2] + ... a[i][n]A[i][n]
     int det = 0, i = 0;
     for (int j = 0; j < size; j++) {
-        int** subM = submatriz(matriz, size, i, j);
-        // Recursión
-        //        cout << endl << "    " << numero++ << endl;
         if (matriz[i][j]) {
-            det += matriz[i][j] * cofactor(subM, size - 1, i, j);
-            liberarMemoria(subM, size - 1);
+            det += matriz[i][j] * cofactor(matriz, size, i, j); // Recursión
         }
     }
 
     return det;
 }
 
-/* Calcula el cofactor de un elemento dada la matriz original, el tamaño,
+/* Calcula la submatriz de un elemento dada la matriz original, el tamaño,
  * la fila del elemento (i) y la columna del elemento (j).
  */
 int** submatriz(int**& matriz, int size, int fila, int columna) {
@@ -141,19 +161,30 @@ int** submatriz(int**& matriz, int size, int fila, int columna) {
             submatriz[i][j] = matriz[m][n];
         }
     }
-
-    //    cout << "Submatriz:" << endl;
-    //    for (int i = 0; i < size-1; i++) {
-    //        for (int j = 0; j < size-1; j++) {
-    //            cout << submatriz[i][j] << "  ";
-    //        }
-    //        cout << endl;
-    //    }
-
     return submatriz;
 }
 
-int cofactor(int**& submatriz, int size, int fila, int columna) {
+/* Calcula el cofactor de una matriz, dados la matriz, su tamaño, la fila y 
+ * la columna del elemento referido.
+ */
+int cofactor(int**& matriz, int size, int fila, int columna) {
     int signo = (fila + columna) % 2 == 0 ? 1 : -1;
-    return signo * determinante(submatriz, size);
+    int** subM = submatriz(matriz, size, fila, columna);
+    int calculo = signo * determinante(subM, size - 1);
+    liberarMemoria(subM, size - 1);
+    return calculo;
+}
+
+/* Transpone una matriz por referencia.
+ */
+void transponer(int**& matriz, int size) {
+    if (matriz != NULL) {
+        for (int i = 0; i < size; i++) {
+            for (int j = i + 1; j < size; j++) {
+                int value = matriz[i][j];
+                matriz[i][j] = matriz[j][i];
+                matriz[j][i] = value;
+            }
+        }
+    }
 }
