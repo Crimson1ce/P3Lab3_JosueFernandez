@@ -1,10 +1,12 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <iomanip>
 
 using std::cout;
 using std::cin;
 using std::endl;
+using std::setw;
 
 //Prototipos
 int** generarMatriz(int);
@@ -14,6 +16,7 @@ int determinante(int**&, int);
 int** submatriz(int**&, int, int, int);
 int cofactor(int**&, int, int, int);
 void transponer(int**&, int);
+void calcularInversa(int**&, int, int);
 
 int main(int argc, char** argv) {
 
@@ -37,33 +40,51 @@ int main(int argc, char** argv) {
         int** adjMatriz = NULL;
         adjMatriz = adjunta(matriz, size);
         
-
+        cout << "La matriz A es: " << endl;
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 cout << matriz[i][j] << "\t ";
             }
             cout << endl;
         }
-        cout << endl << "El determinante de la matriz es: " 
-                << determinante(matriz, size) << endl;
-        cout << endl << "La adjunta de la matriz es: " << endl;
+        
+        
+        int determinanteA = determinante(matriz, size);
+        cout << endl << "El determinante de la matriz A es: " 
+                << determinanteA << endl;
+        
+        
+        cout << endl << "La adjunta de la matriz A es: " << endl;
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                cout << adjMatriz[i][j] << "  ";
+                cout << adjMatriz[i][j] << "\t ";
             }
             cout << endl;
+        }
+        
+        if(determinanteA)
+        {
+            calcularInversa(adjMatriz,size,determinanteA);
+        }
+        else
+        {
+            cout << endl << "La matriz A no tiene una matriz inversa. Es singular." << endl;
         }
 
         //Liberar la memoria de las matrices
         liberarMemoria(matriz, size);
         liberarMemoria(adjMatriz, size);
 
+        cout << "---------------------------------------------------" << endl;
+        
         //Preguntar por repetición
         do {
             cout << endl << "Desea calcular la inversa de otra matriz? (S=Si / N=No): ";
             cin >> opcion;
         } while (opcion != 'S' && opcion != 's' && opcion != 'N' && opcion != 'n');
 
+        cout << "---------------------------------------------------" << endl;
+        
     } while (opcion == 'S' || opcion == 's');
 
     cout << endl << "Nos vemos!";
@@ -189,5 +210,41 @@ void transponer(int**& matriz, int size) {
                 matriz[j][i] = value;
             }
         }
+    }
+}
+
+int factorComun(int a, int b){
+    
+    a = a<0 ? -a : a;
+    b = b<0 ? -b : b;
+    
+    int min = a>b ? b : a;
+    int factor=1;
+    for (int i = 2; i <= min; i++) {
+        if(a % i==0 && b % i==0){
+            factor = i;
+        }
+    }
+    return factor;
+}
+
+void calcularInversa(int**& adjMatriz, int size, int determinant){
+    
+    cout << endl << "La inversa de la matriz A es: " << endl;
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            if(adjMatriz[i][j]%determinant==0)
+            {
+                cout << setw(8) << adjMatriz[i][j] / determinant << "\t";
+            }
+            else
+            {
+                int factor = factorComun(adjMatriz[i][j],determinant);
+                int numerador = adjMatriz[i][j]/factor;
+                int denominador = determinant/factor;
+                cout << setw(4) << (denominador<0 ? -numerador:numerador) << "/" << setw(3) << (denominador<0 ? -denominador:denominador) << "\t";
+            }
+        }
+        cout << endl;
     }
 }
